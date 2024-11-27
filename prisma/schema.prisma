@@ -1,0 +1,58 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Agent {
+  id        Int        @id @default(autoincrement())
+  name      String
+  language  String
+  voiceId   String     @unique @default(uuid())
+  updatedAt DateTime   @default(now())
+  campaigns Campaign[]
+}
+
+model Campaign {
+  id      Int          @id @default(autoincrement())
+  name    String
+  type    CampaignType
+  phoneNo String
+  status  StatusType
+  agentId Int
+  agent   Agent        @relation(fields: [agentId], references: [id])
+  results Result[]
+}
+
+model Result {
+  id            Int      @id @default(autoincrement())
+  name          String
+  type          String
+  cost          Float
+  outcome       String
+  duration      Float
+  summary       String
+  transcription String
+  campaignId    Int
+  campaign      Campaign @relation(fields: [campaignId], references: [id])
+}
+
+enum CampaignType {
+  Inbound
+  Outbound
+}
+
+enum StatusType {
+  Running
+  Paused
+  Completed
+}
